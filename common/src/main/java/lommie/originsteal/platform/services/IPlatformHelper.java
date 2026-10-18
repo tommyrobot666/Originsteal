@@ -1,5 +1,10 @@
 package lommie.originsteal.platform.services;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
+
+import java.util.function.Function;
+
 public interface IPlatformHelper {
 
     /**
@@ -33,4 +38,6 @@ public interface IPlatformHelper {
 
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+
+    Item registerItem(Item item, String id);
 }

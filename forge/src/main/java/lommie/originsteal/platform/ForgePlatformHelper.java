@@ -1,8 +1,12 @@
 package lommie.originsteal.platform;
 
 import lommie.originsteal.platform.services.IPlatformHelper;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
+
+import java.util.function.Function;
 
 public class ForgePlatformHelper implements IPlatformHelper {
 
@@ -22,5 +26,10 @@ public class ForgePlatformHelper implements IPlatformHelper {
     public boolean isDevelopmentEnvironment() {
 
         return !FMLLoader.isProduction();
+    }
+
+    @Override
+    public Item registerItem(Item item, String id) {
+        throw new RuntimeException();
     }
 }
