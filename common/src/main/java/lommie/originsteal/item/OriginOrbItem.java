@@ -1,9 +1,17 @@
 package lommie.originsteal.item;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginLayer;
+import io.github.apace100.origins.origin.OriginLayers;
+import io.github.apace100.origins.origin.OriginRegistry;
 import lommie.originsteal.Constants;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -46,5 +54,20 @@ public class OriginOrbItem extends Item {
         return !io.github.apace100.origins.registry.ModComponents.ORIGIN.get(player).isSelectingOrigin() && io.github.apace100.origins.registry.ModComponents.ORIGIN.get(player).getOrigin(originAndLayer.layer)!=originAndLayer.origin;
     }
 
-    public record OriginAndLayerPair(OriginLayer layer, Origin origin){}
+    public record OriginAndLayerPair(OriginLayer layer, Origin origin){
+        //RecordCodecBuilder.create(instance -> );
+        public static final Codec<OriginAndLayerPair> CODEC = Codec.of(OriginAndLayerPair::encoder,OriginAndLayerPair::decoder);
+
+        private static <T> DataResult<Pair<OriginAndLayerPair,T>> decoder(DynamicOps<T> tDynamicOps, T t) {
+            OriginLayer layer = OriginLayers.getLayer(ResourceLocation.parse(tDynamicOps.getStringValue(tDynamicOps.get(t,"layer_id").getOrThrow()).getOrThrow()));
+            Origin origin = OriginRegistry.get(ResourceLocation.parse(tDynamicOps.getStringValue(tDynamicOps.get(t,"layer_id").getOrThrow()).getOrThrow()));
+            return DataResult.success(Pair.of(new OriginAndLayerPair(layer,origin),t));
+        }
+
+        private <T> DataResult<T> encoder(DynamicOps<T> tDynamicOps, T t) {
+            tDynamicOps.set(t,"layer_id",tDynamicOps.createString(layer.getIdentifier().toString()));
+            tDynamicOps.set(t,"origin_id",tDynamicOps.createString(origin.getIdentifier().toString()));
+            return DataResult.success(t);
+        }
+    }
 }

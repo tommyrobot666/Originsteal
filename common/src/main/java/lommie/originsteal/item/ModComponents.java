@@ -11,7 +11,7 @@ public class ModComponents {
     }
 
     public static final Supplier<DataComponentType<OriginOrbItem.OriginAndLayerPair>> ORIGIN_AND_LAYER =
-            register(DataComponentType.<OriginOrbItem.OriginAndLayerPair>builder().build(),"origin_and_layer");
+            register(DataComponentType.<OriginOrbItem.OriginAndLayerPair>builder().persistent(OriginOrbItem.OriginAndLayerPair.CODEC).build(),"origin_and_layer");
 
     public static void register(){}
 }
