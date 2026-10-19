@@ -8,6 +8,12 @@ repositories {
         name = 'ParchmentMC'
         url = 'https://maven.parchmentmc.org'
     }
+
+
+    maven {
+        name = "Ladysnake Libs Snapshots"
+        url = 'https://maven.ladysnake.org/snapshots'
+    }
     maven {
         name = "Ladysnake Libs"
         url = 'https://maven.ladysnake.org/releases'
@@ -67,7 +73,7 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    modImplementation "com.github.apace100:origins-fabric:${project.origins_version}"
+    modImplementation "io.github.apace100:origins-fabric:${project.origins_version}"
 }
 
 loom {

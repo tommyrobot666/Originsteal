@@ -5,6 +5,10 @@ plugins {
 
 repositories {
     maven {
+        name = "Ladysnake Libs Snapshots"
+        url = 'https://maven.ladysnake.org/snapshots'
+    }
+    maven {
         name = "Ladysnake Libs"
         url = 'https://maven.ladysnake.org/releases'
     }
@@ -28,7 +32,7 @@ dependencies {
     // fabric and neoforge both bundle mixinextras, so it is safe to use it in common
     compileOnly group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5'
     annotationProcessor group: 'io.github.llamalad7', name: 'mixinextras-common', version: '0.3.5'
-    compileOnly("com.github.apace100:origins-fabric:${project.origins_version}"){
+    compileOnly("io.github.apace100:origins-fabric:${project.origins_version}"){
 //        transitive=false
         exclude group: "me.shedaniel.cloth"
         exclude group: "com.jamieswhiteshirt"
