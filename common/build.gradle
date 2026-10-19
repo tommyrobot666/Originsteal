@@ -12,6 +12,10 @@ repositories {
         name = "Ladysnake Libs"
         url = 'https://maven.ladysnake.org/releases'
     }
+//    maven {
+//        name = 'Fabric'
+//        url = uri('https://maven.fabricmc.net')
+//    }
 }
 
 neoForge {

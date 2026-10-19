@@ -74,15 +74,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     modImplementation "io.github.apace100:origins-fabric:${project.origins_version}"
-//    implementation "io.github.apace100:origins-fabric:${project.origins_version}"
-    compileOnly("io.github.apace100:origins-fabric:${project.origins_version}"){
-        exclude group: "me.shedaniel.cloth"
-        exclude group: "com.jamieswhiteshirt"
-        exclude group: "carpet"
-        exclude group: "net.fabricmc.fabric-api"
-        exclude group: "maven.modrinth"
-        exclude group: "net.fabricmc"
-    }
 }
 
 loom {

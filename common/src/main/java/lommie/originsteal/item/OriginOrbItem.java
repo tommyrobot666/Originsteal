@@ -4,11 +4,10 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.apace100.origins.origin.Origin;
 import io.github.apace100.origins.origin.OriginLayer;
-//import io.github.apace100.origins.origin.OriginLayers;
-//import io.github.apace100.origins.origin.OriginRegistry;
+import io.github.apace100.origins.origin.OriginLayerManager;
+import io.github.apace100.origins.origin.OriginManager;
 import lommie.originsteal.Constants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +18,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Objects;
 
 public class OriginOrbItem extends Item {
     public OriginOrbItem(Properties properties) {
@@ -46,6 +50,20 @@ public class OriginOrbItem extends Item {
     }
 
     private static OriginAndLayerPair getOriginAndLayer(ItemStack itemstack) {
+        if (!itemstack.has(ModComponents.ORIGIN_AND_LAYER.get())){
+            OriginLayer fallback = null;
+            try {
+                Method values = OriginLayerManager.class.getMethod("values");
+                Collection<OriginLayer> values2 = (Collection<OriginLayer>) values.invoke(null);
+                fallback = values2.stream().findAny().orElseThrow();
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+
+            itemstack.set(ModComponents.ORIGIN_AND_LAYER.get(),new OriginAndLayerPair(Objects.requireNonNull(fallback),Origin.EMPTY));
+                    //new OriginAndLayerPair(OriginLayerManager.values().stream().findAny().orElseThrow(),OriginManager.values().stream().findAny().orElseThrow()));
+        }
+
         return itemstack.get(ModComponents.ORIGIN_AND_LAYER.get());
     }
 
@@ -59,14 +77,37 @@ public class OriginOrbItem extends Item {
         public static final Codec<OriginAndLayerPair> CODEC = Codec.of(OriginAndLayerPair::encoder,OriginAndLayerPair::decoder);
 
         private static <T> DataResult<Pair<OriginAndLayerPair,T>> decoder(DynamicOps<T> tDynamicOps, T t) {
-            OriginLayer layer = null;//OriginLayers.getLayer(ResourceLocation.parse(tDynamicOps.getStringValue(tDynamicOps.get(t,"layer_id").getOrThrow()).getOrThrow()));
-            Origin origin = null;//OriginRegistry.get(ResourceLocation.parse(tDynamicOps.getStringValue(tDynamicOps.get(t,"layer_id").getOrThrow()).getOrThrow()));
+            OriginLayer layer = null;
+            try {
+                Method get = OriginLayerManager.class.getMethod("get", ResourceLocation.class);
+                layer = (OriginLayer) get.invoke(null,ResourceLocation.parse(tDynamicOps.getStringValue(tDynamicOps.get(t,"layer_id").getOrThrow()).getOrThrow()));
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+            Origin origin = null;
+            try {
+                Method get = OriginManager.class.getMethod("get", ResourceLocation.class);
+                origin = (Origin) get.invoke(null,ResourceLocation.parse(tDynamicOps.getStringValue(tDynamicOps.get(t,"origin_id").getOrThrow()).getOrThrow()));
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
             return DataResult.success(Pair.of(new OriginAndLayerPair(layer,origin),t));
         }
 
         private <T> DataResult<T> encoder(DynamicOps<T> tDynamicOps, T t) {
-//            tDynamicOps.set(t,"layer_id",tDynamicOps.createString(layer.getIdentifier().toString()));
-//            tDynamicOps.set(t,"origin_id",tDynamicOps.createString(origin.getIdentifier().toString()));
+            try {
+                Method getId = OriginLayer.class.getMethod("getId");
+                tDynamicOps.set(t,"layer_id",tDynamicOps.createString(((ResourceLocation) getId.invoke(layer)).toString()));
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                Method getId = Origin.class.getMethod("getId");
+                tDynamicOps.set(t, "origin_id", tDynamicOps.createString(((ResourceLocation) getId.invoke(origin)).toString()));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
             return DataResult.success(t);
         }
     }
