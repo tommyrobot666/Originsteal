@@ -1,12 +1,12 @@
 package lommie.originsteal.platform;
 
 import lommie.originsteal.platform.services.IPlatformHelper;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class ForgePlatformHelper implements IPlatformHelper {
 
@@ -29,7 +29,12 @@ public class ForgePlatformHelper implements IPlatformHelper {
     }
 
     @Override
-    public Item registerItem(Item item, String id) {
+    public Supplier<Item> registerItem(Item item, String id) {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public <T> Supplier<DataComponentType<T>> registerDataComponentType(DataComponentType<T> componentType, String id) {
         throw new RuntimeException();
     }
 }
