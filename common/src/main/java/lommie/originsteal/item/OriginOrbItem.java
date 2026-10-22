@@ -13,8 +13,6 @@ import net.minecraft.nbt.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.DelegatingOps;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -70,7 +68,7 @@ public class OriginOrbItem extends Item {
         return super.use(level, player, usedHand);
     }
 
-    private static ItemStack withNewOriginAndLayer(ItemStack itemstack, OriginAndLayerPair originAndLayerPair) {
+    public static ItemStack withNewOriginAndLayer(ItemStack itemstack, OriginAndLayerPair originAndLayerPair) {
         itemstack.set(ModComponents.ORIGIN_AND_LAYER.get(),originAndLayerPair);
         return itemstack;
     }
