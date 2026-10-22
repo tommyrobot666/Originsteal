@@ -52,6 +52,15 @@ public class OriginOrbItem extends Item {
             }
             player.sendSystemMessage(Component.translatable(Constants.MOD_ID+".origin_orb.changed_origin",originName));
 
+            try {
+                Method getId = Origin.class.getMethod("getId");
+                if(getId.invoke(original).equals(ResourceLocation.fromNamespaceAndPath("origins","human"))){
+                    return InteractionResultHolder.success(ItemStack.EMPTY);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
             return InteractionResultHolder.success(withNewOriginAndLayer(itemstack, new OriginAndLayerPair(originAndLayer.layer,original)));
         }
 
