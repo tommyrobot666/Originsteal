@@ -9,9 +9,12 @@ import io.github.apace100.origins.origin.OriginLayer;
 import io.github.apace100.origins.origin.OriginLayerManager;
 import io.github.apace100.origins.origin.OriginManager;
 import lommie.originsteal.Constants;
+import net.minecraft.nbt.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.DelegatingOps;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -176,6 +179,28 @@ public class OriginOrbItem extends Item {
         }
 
         private <T> DataResult<T> encoder(DynamicOps<T> tDynamicOps, T t) {
+            if (true){//(tDynamicOps instanceof NbtOps || (tDynamicOps instanceof DelegatingOps<T> || tDynamicOps instanceof RegistryOps<T> ? t instanceof Tag : false)) {
+                CompoundTag tag = new CompoundTag();
+                try {
+                    Method getId = OriginLayer.class.getMethod("getId");
+                    tag.put("layer_id", StringTag.valueOf(((ResourceLocation) getId.invoke(layer)).toString()));
+                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    Method getId = Origin.class.getMethod("getId");
+                    tag.put("origin_id", StringTag.valueOf(((ResourceLocation) getId.invoke(origin)).toString()));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                return DataResult.success((T) tag);
+            }
+
+
+
+
+            Constants.LOG.error("There's something wrong with this codec, and idk what. Your world will get corrupted");
             try {
                 Method getId = OriginLayer.class.getMethod("getId");
                 tDynamicOps.set(t,"layer_id",tDynamicOps.createString(((ResourceLocation) getId.invoke(layer)).toString()));
