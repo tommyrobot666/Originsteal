@@ -9,7 +9,9 @@ import io.github.apace100.origins.origin.OriginLayer;
 import io.github.apace100.origins.origin.OriginLayerManager;
 import io.github.apace100.origins.origin.OriginManager;
 import lommie.originsteal.Constants;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -31,6 +33,9 @@ public class OriginOrbItem extends Item {
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand usedHand) {
+        // values sent to client are null (too lazy to make codec), so if client tries to access them the game will crash
+        if (level.isClientSide()) return InteractionResultHolder.pass(player.getItemInHand(usedHand));
+
         ItemStack itemstack = player.getItemInHand(usedHand);
         OriginAndLayerPair originAndLayer = getOriginAndLayer(itemstack);
         if (playerCanUseOrb(player,itemstack)){
@@ -75,6 +80,7 @@ public class OriginOrbItem extends Item {
     public record OriginAndLayerPair(OriginLayer layer, Origin origin){
         //RecordCodecBuilder.create(instance -> );
         public static final Codec<OriginAndLayerPair> CODEC = Codec.of(OriginAndLayerPair::encoder,OriginAndLayerPair::decoder);
+        public static final StreamCodec<? super RegistryFriendlyByteBuf, OriginAndLayerPair> STREAM_CODEC = StreamCodec.of((b,p) -> {}, (b) -> new OriginAndLayerPair(null,null));
 
         private static <T> DataResult<Pair<OriginAndLayerPair,T>> decoder(DynamicOps<T> tDynamicOps, T t) {
             OriginLayer layer = null;
