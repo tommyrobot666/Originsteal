@@ -43,7 +43,14 @@ public class OriginOrbItem extends Item {
         if (playerCanUseOrb(player,itemstack)){
             Origin original = io.github.apace100.origins.registry.ModComponents.ORIGIN.get(player).getOrigin(originAndLayer.layer);
             io.github.apace100.origins.registry.ModComponents.ORIGIN.get(player).setOrigin(originAndLayer.layer,originAndLayer.origin);
-            player.sendSystemMessage(Component.translatable(Constants.MOD_ID+".origin_orb.changed_origin"));
+            Component originName;
+            try {
+                Method getName = Origin.class.getMethod("getName");
+                originName = (Component) getName.invoke(originAndLayer.origin);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            player.sendSystemMessage(Component.translatable(Constants.MOD_ID+".origin_orb.changed_origin",originName));
 
             return InteractionResultHolder.success(withNewOriginAndLayer(itemstack, new OriginAndLayerPair(originAndLayer.layer,original)));
         }

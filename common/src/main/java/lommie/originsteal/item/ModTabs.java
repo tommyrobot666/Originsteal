@@ -20,7 +20,7 @@ public class ModTabs {
             ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID,"all_orbs"),
             CreativeModeTab.builder(CreativeModeTab.Row.TOP,8)
             .icon(() -> ModItems.ORIGIN_ORB.get().getDefaultInstance())
-            .title(Component.empty())
+            .title(Component.translatable(Constants.MOD_ID+".itemgroup.all_orbs"))
             .displayItems((parameters, output) -> {
                 Collection<OriginLayer> allLayers;
                 try {
