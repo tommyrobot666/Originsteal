@@ -81,34 +81,65 @@ public class OriginOrbItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> toolTip, TooltipFlag tooltipFlag) {
-        toolTip.add(Component.literal("i dont wana write the stream codec"));
-        if (false) { // if (i wrote the codec) {
-            OriginAndLayerPair originAndLayer = getOriginAndLayer(stack);
+        OriginAndLayerPair originAndLayer = getOriginAndLayer(stack);
 
-            Component layerName;
-            try {
-                Method getName = OriginLayer.class.getMethod("getName");
-                layerName = (Component) getName.invoke(originAndLayer.layer);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            Component originName;
-            try {
-                Method getName = Origin.class.getMethod("getName");
-                originName = (Component) getName.invoke(originAndLayer.origin);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            toolTip.add(Component.translatable(Constants.MOD_ID+".origin_layer").append(layerName));
-            toolTip.add(Component.translatable(Constants.MOD_ID+".origin").append(originName));
+        Component layerName;
+        try {
+            Method getName = OriginLayer.class.getMethod("getName");
+            layerName = (Component) getName.invoke(originAndLayer.layer);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+        Component originName;
+        try {
+            Method getName = Origin.class.getMethod("getName");
+            originName = (Component) getName.invoke(originAndLayer.origin);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        toolTip.add(Component.translatable(Constants.MOD_ID+".origin_layer").append(layerName));
+        toolTip.add(Component.translatable(Constants.MOD_ID+".origin").append(originName));
     }
 
     public record OriginAndLayerPair(OriginLayer layer, Origin origin){
         //RecordCodecBuilder.create(instance -> );
         public static final Codec<OriginAndLayerPair> CODEC = Codec.of(OriginAndLayerPair::encoder,OriginAndLayerPair::decoder);
-        public static final StreamCodec<? super RegistryFriendlyByteBuf, OriginAndLayerPair> STREAM_CODEC = StreamCodec.of((b,p) -> {}, (b) -> new OriginAndLayerPair(null,null));
+        public static final StreamCodec<? super RegistryFriendlyByteBuf, OriginAndLayerPair> STREAM_CODEC = StreamCodec.of(OriginAndLayerPair::sEncoder, OriginAndLayerPair::sDecoder);
+
+        private static OriginAndLayerPair sDecoder(RegistryFriendlyByteBuf buf) {
+            OriginLayer layer = null;
+            try {
+                Method get = OriginLayerManager.class.getMethod("get", ResourceLocation.class);
+                layer = (OriginLayer) get.invoke(null,ResourceLocation.parse(buf.readUtf()));
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+            Origin origin = null;
+            try {
+                Method get = OriginManager.class.getMethod("get", ResourceLocation.class);
+                origin = (Origin) get.invoke(null,ResourceLocation.parse(buf.readUtf()));
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+
+            return new OriginAndLayerPair(layer,origin);
+        }
+
+        private static void sEncoder(RegistryFriendlyByteBuf buf, OriginAndLayerPair originAndLayerPair) {
+            try {
+                Method getId = OriginLayer.class.getMethod("getId");
+                buf.writeUtf(((ResourceLocation) getId.invoke(originAndLayerPair.layer)).toString());
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                Method getId = Origin.class.getMethod("getId");
+                buf.writeUtf(((ResourceLocation) getId.invoke(originAndLayerPair.origin)).toString());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         private static <T> DataResult<Pair<OriginAndLayerPair,T>> decoder(DynamicOps<T> tDynamicOps, T t) {
             OriginLayer layer = null;
