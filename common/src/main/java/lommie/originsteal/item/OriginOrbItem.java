@@ -18,12 +18,14 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 public class OriginOrbItem extends Item {
@@ -75,6 +77,32 @@ public class OriginOrbItem extends Item {
     private static boolean playerCanUseOrb(Player player, ItemStack itemstack) {
         OriginAndLayerPair originAndLayer = getOriginAndLayer(itemstack);
         return !io.github.apace100.origins.registry.ModComponents.ORIGIN.get(player).isSelectingOrigin() && io.github.apace100.origins.registry.ModComponents.ORIGIN.get(player).getOrigin(originAndLayer.layer)!=originAndLayer.origin;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> toolTip, TooltipFlag tooltipFlag) {
+        toolTip.add(Component.literal("i dont wana write the stream codec"));
+        if (false) { // if (i wrote the codec) {
+            OriginAndLayerPair originAndLayer = getOriginAndLayer(stack);
+
+            Component layerName;
+            try {
+                Method getName = OriginLayer.class.getMethod("getName");
+                layerName = (Component) getName.invoke(originAndLayer.layer);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            Component originName;
+            try {
+                Method getName = Origin.class.getMethod("getName");
+                originName = (Component) getName.invoke(originAndLayer.origin);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            toolTip.add(Component.translatable(Constants.MOD_ID+".origin_layer").append(layerName));
+            toolTip.add(Component.translatable(Constants.MOD_ID+".origin").append(originName));
+        }
     }
 
     public record OriginAndLayerPair(OriginLayer layer, Origin origin){

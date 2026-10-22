@@ -2,6 +2,7 @@ package lommie.originsteal;
 
 import lommie.originsteal.item.ModComponents;
 import lommie.originsteal.item.ModItems;
+import lommie.originsteal.item.ModTabs;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -14,6 +15,7 @@ public class CommonClass {
     // code that gets invoked by the entry point of the loader specific projects.
     public static void init() {
         ModItems.register();
+        ModTabs.register();
         ModComponents.register();
     }
 }
